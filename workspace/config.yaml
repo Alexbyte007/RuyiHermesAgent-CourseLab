@@ -1,0 +1,45 @@
+model:
+  provider: openai-api
+  default: gpt-5.6-sol
+  base_url: https://lowkeyapi.com
+  api_mode: chat_completions
+  reasoning_effort: xhigh
+
+providers:
+  - name: lowkeyapi
+    base_url: https://lowkeyapi.com/v1
+    model: gpt-5.5
+    key_env: LOWKEYAPI_API_KEY
+    api_mode: chat_completions
+
+platforms:
+  api_server:
+    port: 8642
+    enabled: true
+mcp_servers: {}
+display:
+  tool_progress: all
+  interim_assistant_messages: true
+timezone:
+_config_version: 33
+plugins:
+  enabled: []
+curator:
+  enabled: true
+  interval_hours: 24
+  min_idle_hours: 12
+  stale_after_days: 60
+  archive_after_days: 180
+  consolidate: true
+  prune_builtins: false
+  backup: true
+auxiliary:
+  curator:
+    provider: auto
+    model: ''
+    base_url: ''
+    api_key: ''
+    timeout: 120
+    extra_body: {}
+agent:
+  verify_on_stop: false
