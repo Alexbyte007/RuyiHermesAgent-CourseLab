@@ -1,3 +1,15 @@
+## Course Lab Preview
+
+### GUI Desktop
+
+![Hermes Agent GUI preview](docs/course-screenshots/hermes-gui-preview.png)
+
+### CLI Terminal
+
+![Hermes Agent CLI preview](docs/course-screenshots/hermes-cli-preview.png)
+
+---
+
 <p align="center">
   <img src="assets/banner.png" alt="Hermes Agent" width="100%">
 </p>
