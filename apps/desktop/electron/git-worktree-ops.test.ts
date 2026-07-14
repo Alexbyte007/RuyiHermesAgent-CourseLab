@@ -1,4 +1,4 @@
-import assert from 'node:assert/strict'
+﻿import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
@@ -14,7 +14,21 @@ import {
   switchBranch
 } from './git-worktree-ops'
 
-test('sanitizeBranch: spaces → hyphens, forbidden chars dropped, edges trimmed', () => {
+async function rmTempDir(dir: string) {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    try {
+      fs.rmSync(dir, { recursive: true, force: true })
+      return
+    } catch (error) {
+      if (!['EBUSY', 'ENOTEMPTY', 'EPERM'].includes((error as NodeJS.ErrnoException).code || '') || attempt === 19) {
+        throw error
+      }
+      await new Promise(resolve => setTimeout(resolve, 150))
+    }
+  }
+}
+
+test('sanitizeBranch: spaces 鈫?hyphens, forbidden chars dropped, edges trimmed', () => {
   assert.equal(sanitizeBranch('beach vibes'), 'beach-vibes')
   assert.equal(sanitizeBranch('feat/cool thing'), 'feat/cool-thing')
   assert.equal(sanitizeBranch('  wip~^:? '), 'wip')
@@ -72,7 +86,7 @@ test('ensureGitRepo: inits a plain dir with a root commit so worktrees branch', 
     await ensureGitRepo('git', dir)
     assert.equal(git('rev-list', '--count', 'HEAD'), '1')
   } finally {
-    fs.rmSync(dir, { recursive: true, force: true })
+    await rmTempDir(dir)
   }
 })
 
@@ -88,7 +102,7 @@ test('switchBranch: switches a normal checkout branch', async () => {
 
     assert.equal(git('branch', '--show-current'), 'feature')
   } finally {
-    fs.rmSync(dir, { recursive: true, force: true })
+    await rmTempDir(dir)
   }
 })
 
@@ -112,7 +126,7 @@ test('listBranches: lists locals and flags the checked-out branch', async () => 
     assert.equal(branches.find(b => b.name === 'feature').isDefault, false)
     assert.equal(branches.find(b => b.name === 'feature').worktreePath, null)
   } finally {
-    fs.rmSync(dir, { recursive: true, force: true })
+    await rmTempDir(dir)
   }
 })
 
@@ -132,7 +146,7 @@ test('listBranches: flags a free default branch as default, not checked out', as
     assert.equal(defaultBranch.isDefault, true)
     assert.equal(defaultBranch.worktreePath, null)
   } finally {
-    fs.rmSync(dir, { recursive: true, force: true })
+    await rmTempDir(dir)
   }
 })
 
@@ -152,7 +166,7 @@ test('listBranches: a branch claimed by a worktree is flagged checked out', asyn
 
     assert.equal(branches.find(b => b.name === 'feature').checkedOut, true)
   } finally {
-    fs.rmSync(dir, { recursive: true, force: true })
+    await rmTempDir(dir)
   }
 })
 
@@ -162,7 +176,7 @@ test('listBranches: empty on a non-repo path', async () => {
   try {
     assert.deepEqual(await listBranches(dir, 'git'), [])
   } finally {
-    fs.rmSync(dir, { recursive: true, force: true })
+    await rmTempDir(dir)
   }
 })
 
@@ -177,7 +191,7 @@ test('addWorktree: existingBranch checks the branch out without a new branch', a
     const before = git('branch', '--list').split('\n').length
     const result = await addWorktree(dir, { existingBranch: 'cool/feature' }, 'git')
 
-    // No new branch was created — only the existing one is checked out.
+    // No new branch was created 鈥?only the existing one is checked out.
     assert.equal(git('branch', '--list').split('\n').length, before)
     assert.equal(result.branch, 'cool/feature')
     // Dir is named off the branch slug, nested under the main repo's .worktrees.
@@ -187,7 +201,7 @@ test('addWorktree: existingBranch checks the branch out without a new branch', a
       'cool/feature'
     )
   } finally {
-    fs.rmSync(dir, { recursive: true, force: true })
+    await rmTempDir(dir)
   }
 })
 
@@ -207,6 +221,9 @@ test('addWorktree: existing default branch switches the main checkout, not .work
     assert.equal(git('branch', '--show-current'), trunk)
     assert.equal(fs.existsSync(path.join(dir, '.worktrees', trunk)), false)
   } finally {
-    fs.rmSync(dir, { recursive: true, force: true })
+    await rmTempDir(dir)
   }
 })
+
+
+
