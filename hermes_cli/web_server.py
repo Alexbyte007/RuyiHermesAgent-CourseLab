@@ -2662,6 +2662,12 @@ async def get_status(profile: Optional[str] = None):
             status_scope.__exit__(*sys.exc_info())
 
 
+@app.get("/api/ready")
+async def get_ready():
+    """Lightweight liveness probe for headless desktop backends."""
+    return {"ok": True}
+
+
 _WINDOWS_11_MIN_BUILD = 22000
 
 

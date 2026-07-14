@@ -267,6 +267,11 @@ class TestWebServerEndpoints:
         assert "active_sessions" in data
         assert data["can_update_hermes"] is True
 
+    def test_get_ready(self):
+        resp = self.client.get("/api/ready")
+        assert resp.status_code == 200
+        assert resp.json() == {"ok": True}
+
     def test_status_active_session_count_uses_read_only_db(self, monkeypatch, tmp_path):
         import hermes_cli.web_server as web_server
         import hermes_state
